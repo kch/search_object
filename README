@@ -1,0 +1,30 @@
+SearchObject
+============
+
+MySQL only.
+
+
+Example
+=======
+
+  class SomeModel < ActiveRecord::Base
+    searchable_by :title, :body
+  end
+
+  @recs = SomeModel.search("foobar")
+
+
+Nice Things
+===========
+
+Search all content_columns
+
+    searchable_by :*
+    
+    
+Search all associations (that have a search_object):
+
+    searchable_by :**
+    
+
+Copyright (c) 2008 Caio Chassot, released under the MIT license
