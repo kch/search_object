@@ -38,25 +38,25 @@ module Searchable
     def make_searchable!
       return if reflect_on_association :search_object
       Searchable.searchable_models << name
-      has_one    :search_object, :as => :searchable, :dependent => :delete
-      after_save :update_search_object!
+      named_scope :search, lambda { |str| search_params(str) }
+      has_one     :search_object, :as => :searchable, :dependent => :delete
+      after_save  :update_search_object!
     end
     
-    def search(str)
+    def search_params(str)
       q = str.to_s.strip.split(/[\s.,;:'"+=()\[\]]+/).uniq.join(" ")
-      return [] if q.blank?
+      return {} if q.blank?
       quoted_q      = quote_value(q)
       title_score   = "MATCH (so.title)   AGAINST (#{quoted_q})"
       content_score = "MATCH (so.content) AGAINST (#{quoted_q})"
       klass         = base_class.name
-      
-      find :all,
-        :select     => "#{table_name}.*, #{title_score} AS title_score, #{content_score} AS content_score",
+      { :select     => "#{table_name}.*, #{title_score} AS title_score, #{content_score} AS content_score",
         :joins      => "INNER JOIN search_objects so ON 
                         so.searchable_id = `#{table_name}`.`#{primary_key}` AND
                         so.searchable_type = '#{klass}'",
         :conditions => content_score,
         :order      => "title_score DESC, content_score DESC, #{human_column}"
+      }
     end
   end
   
