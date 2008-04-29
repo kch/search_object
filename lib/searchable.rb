@@ -36,7 +36,7 @@ module Searchable
     end
     
     def make_searchable!
-      return if Searchable.searchable_models.include? name
+      return if reflect_on_association :search_object
       Searchable.searchable_models << name
       has_one    :search_object, :as => :searchable, :dependent => :delete
       after_save :update_search_object!
