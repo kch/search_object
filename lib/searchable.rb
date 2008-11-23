@@ -29,6 +29,10 @@ module Searchable
         else raise "wtf?: #{att}"
         end
       end
+      
+      def manage_search_words
+        write_inheritable_attribute :manage_search_words, true
+      end
     end
     
     def searchable_content_for_association(record, assoc_name)
@@ -58,6 +62,10 @@ module Searchable
         :order      => "title_score DESC, content_score DESC, #{human_column}"
       }
     end
+  end
+  
+  def manage_search_words?
+    !!self.class.read_inheritable_attribute(:manage_search_words)
   end
   
   def searchable?
