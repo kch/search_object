@@ -76,7 +76,8 @@ module Searchable
   private
   
   def update_search_object!
-    return search_object.destroy if search_object unless searchable?
+    search_object.destroy if search_object
+    return unless searchable?
     search_object = build_search_object(:title => searchable_title, :content => searchable_content)
     search_object.save!
   end
