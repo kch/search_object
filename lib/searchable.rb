@@ -78,8 +78,7 @@ module Searchable
   def update_search_object!
     search_object.destroy if search_object
     raise "uh?" unless search_object(true).nil?
-    return unless searchable?
-    build_search_object(:title => searchable_title, :content => searchable_content).save!
+    build_search_object(:title => searchable_title, :content => searchable_content).save! if searchable?
   end
   
 end
