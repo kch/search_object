@@ -1,14 +1,18 @@
 class SearchObject < ActiveRecord::Base
   belongs_to    :searchable, :polymorphic => true
-  after_destroy :remove_search_words, :if => lambda { |r| r.searchable.manage_search_words? }
-  after_create  :add_search_words,    :if => lambda { |r| r.searchable.manage_search_words? }
+  after_destroy :remove_search_words, :if => lambda { |r| r.searchable && r.searchable.manage_search_words? }
+  after_create  :add_search_words,    :if => lambda { |r| r.searchable && r.searchable.manage_search_words? }
   
   private
   
+  def self.stop_words
+    @stop_words ||= YAML::load_file("#{File.dirname(__FILE__)}/stopwords.yml")
+  end
+  
   def count_search_words
     return {} unless searchable.manage_search_words?
-    [title, content].join(" ").strip.split(/[\s.,;:'"+=()\[\]]+/)\
-      .map { |s| s.downcase }.reject { |s| s.length < 2 }.inject(Hash.new(0)) { |h, w| h[w] += 1; h }
+    ([title, content].join(" ").strip.split(/[\s.,;:"+=()\[\]]+/).map { |s| s.downcase }.reject { |s| s.length < 2 } \
+      - self.class.stop_words).inject(Hash.new(0)) { |h, w| h[w] += 1; h }
   end
   
   def remove_search_words
