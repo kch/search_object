@@ -11,7 +11,7 @@ class SearchObject < ActiveRecord::Base
   
   def count_search_words
     return {} unless searchable.manage_search_words?
-    ([title, content].join(" ").strip.split(/[\s.,;:"+=()\[\]]+/).map { |s| s.downcase }.reject { |s| s.length < 2 } \
+    ([title, content].join(" ").strip.split(/[\s.,;:"+=()\[\]]+/).map { |s| s.downcase }.reject { |s| s.length <= 2 } \
       - self.class.stop_words).inject(Hash.new(0)) { |h, w| h[w] += 1; h }
   end
   
