@@ -1,6 +1,7 @@
 require 'set'
 
 module Searchable
+  RX_WORD_SPLITTER = /[\s.,;:"+=()\[\]]+/
   
   def self.searchable_models
     @searchable_models ||= []
@@ -48,7 +49,7 @@ module Searchable
     end
     
     def search_params(str)
-      q = str.to_s.strip.split(/[\s.,;:'"+=()\[\]]+/).uniq.join(" ")
+      q = str.to_s.strip.split(RX_WORD_SPLITTER).uniq.join(" ")
       return {} if q.blank?
       quoted_q      = quote_value(q)
       title_score   = "MATCH (so.title)   AGAINST (#{quoted_q})"
