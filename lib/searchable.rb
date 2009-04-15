@@ -38,12 +38,12 @@ module Searchable
     def make_searchable!
       return if reflect_on_association :search_object
       Searchable.searchable_models << name
-      named_scope :search, lambda { |str| search_params(str) }
+      named_scope :search, lambda { |str| search_options(str) }
       has_one     :search_object, :as => :searchable, :dependent => :delete
       after_save  :update_search_object!
     end
     
-    def search_params(str)
+    def search_options(str)
       q = str.to_s.strip.split(/[\s.,;:'"+=()\[\]]+/).uniq.join(" ")
       return {} if q.blank?
       quoted_q      = quote_value(q)
