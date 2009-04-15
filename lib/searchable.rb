@@ -15,6 +15,10 @@ module Searchable
     searchable_models.map(&:constantize).each { |m| m.find(:all).each(&:update_search_object!) }
   end
 
+  def self.search_terms_from_string(s)
+    s.to_s.strip.split(/[\s.,;:'"+=()\[\]]+/).uniq
+  end
+
   module ClassMethods
     def searchable_by(*attrs, &block)
       make_searchable!
@@ -43,8 +47,8 @@ module Searchable
       after_save  :update_search_object!
     end
 
-    def search_options(str)
-      q = str.to_s.strip.split(/[\s.,;:'"+=()\[\]]+/).uniq.join(" ")
+    def search_options(s)
+      q = Searchable.search_terms_from_string(s).join(" ")
       return {} if q.blank?
       quoted_q      = quote_value(q)
       title_score   = "MATCH (so.title)   AGAINST (#{quoted_q})"
